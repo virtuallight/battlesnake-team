@@ -98,7 +98,7 @@ func move(state GameState) BattlesnakeMoveResponse {
   bottomHead := Coord{X: myHead.X, Y: myHead.Y - 1}
   topHead := Coord{X: myHead.X, Y: myHead.Y + 1}
   
-  for idx, bodyPart := range myBody {
+  for _, bodyPart := range myBody {
     if leftHead == bodyPart {
       possibleMoves["left"] = false
     }
@@ -111,6 +111,7 @@ func move(state GameState) BattlesnakeMoveResponse {
     if topHead == bodyPart {
       possibleMoves["up"] = false
     }
+  }
 
 	// TODO: Step 3 - Don't collide with others.
 	// Use information in GameState to prevent your Battlesnake from colliding with others.
