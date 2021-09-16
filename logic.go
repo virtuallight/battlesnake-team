@@ -5,43 +5,36 @@ package main
 // We have started this for you, with a function to help remove the 'neck' direction
 // from the list of possible moves!
 
+// Points scale = -8 <--> +8
+// Food +2
+// Wall -1
+// Another|Our Snake Head -1
+// Another|Our Snake Body -2
+// Another|Our Snake Tail -1
+// Another|Our 0
+
+
 import (
 	"log"
 	"math/rand"
 )
 
-// This function is called when you register your Battlesnake on play.battlesnake.com
-// See https://docs.battlesnake.com/guides/getting-started#step-4-register-your-battlesnake
-// It controls your Battlesnake appearance and author permissions.
-// For customization options, see https://docs.battlesnake.com/references/personalization
-// TIP: If you open your Battlesnake URL in browser you should see this data.
-func info() BattlesnakeInfoResponse {
-	log.Println("INFO")
-	return BattlesnakeInfoResponse{
-		APIVersion: "1",
-		Author:     "virtuallight",
-		Color:      "#88ff88",
-		Head:       "smile",
-		Tail:       "bolt",
-	}
+
+func createGameBoardExtended(gameState GameState) (gameBoardExtended GameBoardExtended) {
+  boardHeight := gameState.Board.Height
+  boardWidth := gameState.Board.Width
+  var gameBoard GameBoardExtended
+  for i := 0; i < boardHeight; i++ {
+    var line = []CoordExtended{}
+    for j := 0; j < boardWidth; j++ {
+        line = append(line, CoordExtended{score:0, content: Empty})
+    }
+    gameBoard = append(gameBoard, line)
+  }
+  return gameBoard
 }
 
-// This function is called everytime your Battlesnake is entered into a game.
-// The provided GameState contains information about the game that's about to be played.
-// It's purely for informational purposes, you don't have to make any decisions here.
-func start(state GameState) {
-	log.Printf("%s START\n", state.Game.ID)
-}
 
-// This function is called when a game your Battlesnake was in has ended.
-// It's purely for informational purposes, you don't have to make any decisions here.
-func end(state GameState) {
-	log.Printf("%s END\n\n", state.Game.ID)
-}
-
-// This function is called on every turn of a game. Use the provided GameState to decide
-// where to move -- valid moves are "up", "down", "left", or "right".
-// We've provided some code and comments to get you started.
 func move(state GameState) BattlesnakeMoveResponse {
 	possibleMoves := map[string]bool{
 		"up":    true,
@@ -72,7 +65,7 @@ func move(state GameState) BattlesnakeMoveResponse {
   rightEnd := boardWidth - 1
   bottomEnd := 0
   topEnd := boardHeight - 1
-  
+
   // The head is on left or right ends
   if myHead.X == leftEnd {
     possibleMoves["left"] = false
@@ -82,7 +75,7 @@ func move(state GameState) BattlesnakeMoveResponse {
   }
   // The head is on bottom or top ends
   if myHead.Y == bottomEnd {
-      possibleMoves["down"] = false
+    possibleMoves["down"] = false
   }
   if myHead.Y == topEnd {
     possibleMoves["up"] = false
@@ -140,4 +133,34 @@ func move(state GameState) BattlesnakeMoveResponse {
 	return BattlesnakeMoveResponse{
 		Move: nextMove,
 	}
+}
+
+
+// This function is called when you register your Battlesnake on play.battlesnake.com
+// See https://docs.battlesnake.com/guides/getting-started#step-4-register-your-battlesnake
+// It controls your Battlesnake appearance and author permissions.
+// For customization options, see https://docs.battlesnake.com/references/personalization
+// TIP: If you open your Battlesnake URL in browser you should see this data.
+func info() BattlesnakeInfoResponse {
+	log.Println("INFO")
+	return BattlesnakeInfoResponse{
+		APIVersion: "1",
+		Author:     "virtuallight",
+		Color:      "#88ff88",
+		Head:       "smile",
+		Tail:       "bolt",
+	}
+}
+
+// This function is called everytime your Battlesnake is entered into a game.
+// The provided GameState contains information about the game that's about to be played.
+// It's purely for informational purposes, you don't have to make any decisions here.
+func start(state GameState) {
+	log.Printf("%s START\n", state.Game.ID)
+}
+
+// This function is called when a game your Battlesnake was in has ended.
+// It's purely for informational purposes, you don't have to make any decisions here.
+func end(state GameState) {
+	log.Printf("%s END\n\n", state.Game.ID)
 }

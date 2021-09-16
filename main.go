@@ -7,6 +7,24 @@ import (
 	"os"
 )
 
+
+type ContentType int
+const (
+  Food ContentType = iota
+  Head
+  Body
+  Empty
+)
+
+type CoordExtended struct {
+  score int
+  content ContentType
+}
+
+type GameBoardExtended [][]CoordExtended
+
+// --
+
 type GameState struct {
 	Game  Game        `json:"game"`
 	Turn  int         `json:"turn"`
@@ -48,6 +66,7 @@ type Battlesnake struct {
 	Shout string `json:"shout"`
 	Squad string `json:"squad"`
 }
+
 
 type Coord struct {
 	X int `json:"x"`
