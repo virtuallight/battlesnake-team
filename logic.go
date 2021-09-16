@@ -13,27 +13,24 @@ package main
 // Another|Our Snake Tail -1
 // Another|Our 0
 
-
 import (
 	"log"
 	"math/rand"
 )
 
-
 func createGameBoardExtended(gameState GameState) (gameBoardExtended GameBoardExtended) {
-  boardHeight := gameState.Board.Height
-  boardWidth := gameState.Board.Width
-  var gameBoard GameBoardExtended
-  for i := 0; i < boardHeight; i++ {
-    var line = []CoordExtended{}
-    for j := 0; j < boardWidth; j++ {
-        line = append(line, CoordExtended{score:0, content: Empty})
-    }
-    gameBoard = append(gameBoard, line)
-  }
-  return gameBoard
+	boardHeight := gameState.Board.Height
+	boardWidth := gameState.Board.Width
+	var gameBoard GameBoardExtended
+	for i := 0; i < boardHeight; i++ {
+		var line = []CoordExtended{}
+		for j := 0; j < boardWidth; j++ {
+			line = append(line, CoordExtended{score: 0, content: Empty})
+		}
+		gameBoard = append(gameBoard, line)
+	}
+	return gameBoard
 }
-
 
 func move(state GameState) BattlesnakeMoveResponse {
 	possibleMoves := map[string]bool{
@@ -61,50 +58,50 @@ func move(state GameState) BattlesnakeMoveResponse {
 	boardWidth := state.Board.Width
 	boardHeight := state.Board.Height
 
-  leftEnd := 0
-  rightEnd := boardWidth - 1
-  bottomEnd := 0
-  topEnd := boardHeight - 1
+	leftEnd := 0
+	rightEnd := boardWidth - 1
+	bottomEnd := 0
+	topEnd := boardHeight - 1
 
-  // The head is on left or right ends
-  if myHead.X == leftEnd {
-    possibleMoves["left"] = false
-  }
-  if myHead.X == rightEnd {
-    possibleMoves["right"] = false
-  }
-  // The head is on bottom or top ends
-  if myHead.Y == bottomEnd {
-    possibleMoves["down"] = false
-  }
-  if myHead.Y == topEnd {
-    possibleMoves["up"] = false
-  }
+	// The head is on left or right ends
+	if myHead.X == leftEnd {
+		possibleMoves["left"] = false
+	}
+	if myHead.X == rightEnd {
+		possibleMoves["right"] = false
+	}
+	// The head is on bottom or top ends
+	if myHead.Y == bottomEnd {
+		possibleMoves["down"] = false
+	}
+	if myHead.Y == topEnd {
+		possibleMoves["up"] = false
+	}
 
 	// Step 2 - Don't hit yourself.
 	// Use information in GameState to prevent your Battlesnake from colliding with itself.
 	myBody := state.You.Body
 
-  // Check the 4 positions arround the head
-  leftHead := Coord{X: myHead.X - 1, Y: myHead.Y}
-  rightHead := Coord{X: myHead.X + 1, Y: myHead.Y}
-  bottomHead := Coord{X: myHead.X, Y: myHead.Y - 1}
-  topHead := Coord{X: myHead.X, Y: myHead.Y + 1}
-  
-  for _, bodyPart := range myBody {
-    if leftHead == bodyPart {
-      possibleMoves["left"] = false
-    }
-    if rightHead == bodyPart {
-      possibleMoves["right"] = false
-    }
-    if bottomHead == bodyPart {
-      possibleMoves["down"] = false
-    }
-    if topHead == bodyPart {
-      possibleMoves["up"] = false
-    }
-  }
+	// Check the 4 positions arround the head
+	leftHead := Coord{X: myHead.X - 1, Y: myHead.Y}
+	rightHead := Coord{X: myHead.X + 1, Y: myHead.Y}
+	bottomHead := Coord{X: myHead.X, Y: myHead.Y - 1}
+	topHead := Coord{X: myHead.X, Y: myHead.Y + 1}
+
+	for _, bodyPart := range myBody {
+		if leftHead == bodyPart {
+			possibleMoves["left"] = false
+		}
+		if rightHead == bodyPart {
+			possibleMoves["right"] = false
+		}
+		if bottomHead == bodyPart {
+			possibleMoves["down"] = false
+		}
+		if topHead == bodyPart {
+			possibleMoves["up"] = false
+		}
+	}
 
 	// TODO: Step 3 - Don't collide with others.
 	// Use information in GameState to prevent your Battlesnake from colliding with others.
@@ -134,7 +131,6 @@ func move(state GameState) BattlesnakeMoveResponse {
 		Move: nextMove,
 	}
 }
-
 
 // This function is called when you register your Battlesnake on play.battlesnake.com
 // See https://docs.battlesnake.com/guides/getting-started#step-4-register-your-battlesnake

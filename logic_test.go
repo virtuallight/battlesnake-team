@@ -28,22 +28,21 @@ func TestNeckAvoidance(t *testing.T) {
 	}
 }
 
-
 func TestCreateGameBoardExtended(t *testing.T) {
-  // Creating the GameState
-  state := GameState{
-    Board: Board{
-      Height: 10,
-      Width: 20,
-    },
+	// Creating the GameState
+	state := GameState{
+		Board: Board{
+			Height: 10,
+			Width:  20,
+		},
 	}
-  gameBoardExtended := createGameBoardExtended(state)
-  if len(gameBoardExtended) != 10 {
-    t.Errorf("game board of incorrect height: %s", len(gameBoardExtended))
-  }
-  for i := 0; i < 10; i++ {
-    if len(gameBoardExtended[i]) != 20 {
-      t.Errorf("game board of incorrect widgth: %s", len(gameBoardExtended[i]))
-    }
-  }
+	gameBoardExtended := createGameBoardExtended(state)
+	if len(gameBoardExtended) != 10 {
+		t.Errorf("game board of incorrect height: %d", len(gameBoardExtended))
+	}
+	for i := 0; i < 10; i++ {
+		if len(gameBoardExtended[i]) != 20 {
+			t.Errorf("game board of incorrect widgth: %d", len(gameBoardExtended[i]))
+		}
+	}
 }
