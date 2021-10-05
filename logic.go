@@ -64,7 +64,8 @@ func getNeighbourScore(gb GameBoardExtended, current Coord) int {
   me := gb[current.X][current.Y]
   score += me.score()
 
-  // TODO calculate score based on neighbours (mind the wall!)
+  // TODO calculate score based on neighbours (mind the wall! )
+
   // left neighbour
   x = current.X - 1
   y = current.Y
