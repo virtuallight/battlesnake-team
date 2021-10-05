@@ -11,25 +11,93 @@ package main
 // Another|Our Snake Head -1
 // Another|Our Snake Body -2
 // Another|Our Snake Tail -1
-// Another|Our 0
+// Empty 0
 
 import (
 	"log"
 	"math/rand"
 )
 
-func createGameBoardExtended(gameState GameState) (gameBoardExtended GameBoardExtended) {
+
+
+func createGameBoardExtended(gameState GameState) GameBoardExtended {
 	boardHeight := gameState.Board.Height
 	boardWidth := gameState.Board.Width
 	var gameBoard GameBoardExtended
 	for i := 0; i < boardHeight; i++ {
 		var line = []CoordExtended{}
 		for j := 0; j < boardWidth; j++ {
-			line = append(line, CoordExtended{score: 0, content: Empty})
+			line = append(line, CoordExtended{content: Empty})
 		}
 		gameBoard = append(gameBoard, line)
 	}
+
+  // fill content - snakes
+	for _, bs := range gameState.Board.Snakes {
+    headEx := gameBoard[bs.Head.X][bs.Head.Y]
+    headEx.content = Head
+    for _, bsCoord := range bs.Body {
+      ce := gameBoard[bsCoord.X][bsCoord.Y]
+      ce.content = Body
+    }
+  }
+  // fill content - food
+	for _, food := range gameState.Board.Food {
+      gameBoard[food.X][food.Y].content = Food
+  }
+
+  // calculate score
+	for _, bs := range gameState.Board.Snakes {
+    for _, bsCoord := range bs.Body {
+      ce := gameBoard[bsCoord.X][bsCoord.Y]
+      ce.totalScore = getNeighbourScore(gameBoard, bsCoord)
+    }
+  }
+
 	return gameBoard
+}
+
+func getNeighbourScore(gb GameBoardExtended, current Coord) int {
+  score := 0
+  var x, y int
+  
+  me := gb[current.X][current.Y]
+  score += me.score()
+
+  // TODO calculate score based on neighbours (mind the wall!)
+  // left neighbour
+  x = current.X - 1
+  y = current.Y
+
+  // right neighbour
+  x = current.X + 1
+  y = current.Y
+
+  // upper neighbour
+  x = current.X
+  y = current.Y + 1
+
+  // lower neighbour
+  x = current.X
+  y = current.Y - 1
+
+  // upper left neighbour
+  x = current.X - 1
+  y = current.Y + 1 
+
+  // upper right neighbour
+  x = current.X + 1
+  y = current.Y + 1 
+
+  // lower left neighbour
+  x = current.X - 1
+  y = current.Y - 1 
+
+  // lower right neighbour
+  x = current.X + 1
+  y = current.Y - 1 
+
+  return score
 }
 
 func move(state GameState) BattlesnakeMoveResponse {
