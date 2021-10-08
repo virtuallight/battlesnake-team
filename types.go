@@ -3,10 +3,11 @@ package main
 type ContentType int
 
 const (
-	Empty ContentType = iota
-  Food
-	Body
-	Head
+	Empty ContentType = 0
+  Food ContentType = 2
+	Body ContentType = -1
+	Head ContentType = -2
+  Wall ContentType = -3
 )
 
 type CoordExtended struct {
@@ -15,7 +16,11 @@ type CoordExtended struct {
 }
 
 func (c *CoordExtended) score() int {
-  return int(c.content)
+  return c.content.score()
+}
+
+func (c *ContentType) score() int {
+  return int(*c)
 }
 
 type GameBoardExtended [][]CoordExtended

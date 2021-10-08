@@ -13,6 +13,29 @@ package main
 // Another|Our Snake Tail -1
 // Empty 0
 
+// // kf3 is a generic convolution 3x3 kernel filter that operatates on
+// images of type image.Gray from the Go standard image library.
+// func kf3(k *[9]float64, src, dst *image.Gray) {
+//     for y := src.Rect.Min.Y; y < src.Rect.Max.Y; y++ {
+//         for x := src.Rect.Min.X; x < src.Rect.Max.X; x++ {
+//             var sum float64
+//             var i int
+//             for yo := y - 1; yo <= y+1; yo++ {
+//                 for xo := x - 1; xo <= x+1; xo++ {
+//                     if (image.Point{xo, yo}).In(src.Rect) {
+//                         sum += k[i] * float64(src.At(xo, yo).(color.Gray).Y)
+//                     } else {
+//                         sum += k[i] * float64(src.At(x, y).(color.Gray).Y)
+//                     }
+//                     i++
+//                 }
+//             }
+//             dst.SetGray(x, y,
+//                 color.Gray{uint8(math.Min(255, math.Max(0, sum)))})
+//         }
+//     }
+// }
+
 import (
 	"log"
 	"math/rand"
@@ -46,6 +69,8 @@ func createGameBoardExtended(gameState GameState) GameBoardExtended {
       gameBoard[food.X][food.Y].content = Food
   }
 
+  // TODO: Get the score only of the self head's neighbours
+  // TODO: Move this out of createGameBoardExtended
   // calculate score
 	for _, bs := range gameState.Board.Snakes {
     for _, bsCoord := range bs.Body {
@@ -58,45 +83,23 @@ func createGameBoardExtended(gameState GameState) GameBoardExtended {
 }
 
 func getNeighbourScore(gb GameBoardExtended, current Coord) int {
+  boardHeight := len(gb)
+  boardWidth := len(gb[0])
+  
   score := 0
   var x, y int
-  
-  me := gb[current.X][current.Y]
-  score += me.score()
 
-  // TODO calculate score based on neighbours (mind the wall! )
-
-  // left neighbour
-  x = current.X - 1
-  y = current.Y
-
-  // right neighbour
-  x = current.X + 1
-  y = current.Y
-
-  // upper neighbour
-  x = current.X
-  y = current.Y + 1
-
-  // lower neighbour
-  x = current.X
-  y = current.Y - 1
-
-  // upper left neighbour
-  x = current.X - 1
-  y = current.Y + 1 
-
-  // upper right neighbour
-  x = current.X + 1
-  y = current.Y + 1 
-
-  // lower left neighbour
-  x = current.X - 1
-  y = current.Y - 1 
-
-  // lower right neighbour
-  x = current.X + 1
-  y = current.Y - 1 
+  for i:=-1; i <= 1; i++ {
+    for j:=-1; j <= 1; j++ {
+      x = current.X + i
+      y = current.Y + j
+      if (x < 0 || y < 0 || x == boardWidth || y == boardHeight) {
+        score += Wall.score()
+      } else {
+        score += gb[x][y].score()
+      }
+    }
+  }
 
   return score
 }
