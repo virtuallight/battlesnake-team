@@ -11,25 +11,97 @@ package main
 // Another|Our Snake Head -1
 // Another|Our Snake Body -2
 // Another|Our Snake Tail -1
-// Another|Our 0
+// Empty 0
+
+// // kf3 is a generic convolution 3x3 kernel filter that operatates on
+// images of type image.Gray from the Go standard image library.
+// func kf3(k *[9]float64, src, dst *image.Gray) {
+//     for y := src.Rect.Min.Y; y < src.Rect.Max.Y; y++ {
+//         for x := src.Rect.Min.X; x < src.Rect.Max.X; x++ {
+//             var sum float64
+//             var i int
+//             for yo := y - 1; yo <= y+1; yo++ {
+//                 for xo := x - 1; xo <= x+1; xo++ {
+//                     if (image.Point{xo, yo}).In(src.Rect) {
+//                         sum += k[i] * float64(src.At(xo, yo).(color.Gray).Y)
+//                     } else {
+//                         sum += k[i] * float64(src.At(x, y).(color.Gray).Y)
+//                     }
+//                     i++
+//                 }
+//             }
+//             dst.SetGray(x, y,
+//                 color.Gray{uint8(math.Min(255, math.Max(0, sum)))})
+//         }
+//     }
+// }
 
 import (
 	"log"
 	"math/rand"
 )
 
-func createGameBoardExtended(gameState GameState) (gameBoardExtended GameBoardExtended) {
+
+
+func createGameBoardExtended(gameState GameState) GameBoardExtended {
 	boardHeight := gameState.Board.Height
 	boardWidth := gameState.Board.Width
 	var gameBoard GameBoardExtended
 	for i := 0; i < boardHeight; i++ {
 		var line = []CoordExtended{}
 		for j := 0; j < boardWidth; j++ {
-			line = append(line, CoordExtended{score: 0, content: Empty})
+			line = append(line, CoordExtended{content: Empty})
 		}
 		gameBoard = append(gameBoard, line)
 	}
+
+  // fill content - snakes
+	for _, bs := range gameState.Board.Snakes {
+    headEx := gameBoard[bs.Head.X][bs.Head.Y]
+    headEx.content = Head
+    for _, bsCoord := range bs.Body {
+      ce := gameBoard[bsCoord.X][bsCoord.Y]
+      ce.content = Body
+    }
+  }
+  // fill content - food
+	for _, food := range gameState.Board.Food {
+      gameBoard[food.X][food.Y].content = Food
+  }
+
+  // TODO: Get the score only of the self head's neighbours
+  // TODO: Move this out of createGameBoardExtended
+  // calculate score
+	for _, bs := range gameState.Board.Snakes {
+    for _, bsCoord := range bs.Body {
+      ce := gameBoard[bsCoord.X][bsCoord.Y]
+      ce.totalScore = getNeighbourScore(gameBoard, bsCoord)
+    }
+  }
+
 	return gameBoard
+}
+
+func getNeighbourScore(gb GameBoardExtended, current Coord) int {
+  boardHeight := len(gb)
+  boardWidth := len(gb[0])
+  
+  score := 0
+  var x, y int
+
+  for i:=-1; i <= 1; i++ {
+    for j:=-1; j <= 1; j++ {
+      x = current.X + i
+      y = current.Y + j
+      if (x < 0 || y < 0 || x == boardWidth || y == boardHeight) {
+        score += Wall.score()
+      } else {
+        score += gb[x][y].score()
+      }
+    }
+  }
+
+  return score
 }
 
 func move(state GameState) BattlesnakeMoveResponse {
