@@ -19,8 +19,8 @@ func (c *CoordExtended) score() int {
   return c.content.score()
 }
 
-func (c *ContentType) score() int {
-  return int(*c)
+func (c ContentType) score() int {
+  return int(c)
 }
 
 type GameBoardExtended [][]CoordExtended
