@@ -1,107 +1,58 @@
 package main
 
-// This file can be a nice home for your Battlesnake logic and related helper functions.
-//
-// We have started this for you, with a function to help remove the 'neck' direction
-// from the list of possible moves!
-
-// Points scale = -8 <--> +8
-// Food +2
-// Wall -1
-// Another|Our Snake Head -1
-// Another|Our Snake Body -2
-// Another|Our Snake Tail -1
-// Empty 0
-
-// // kf3 is a generic convolution 3x3 kernel filter that operatates on
-// images of type image.Gray from the Go standard image library.
-// func kf3(k *[9]float64, src, dst *image.Gray) {
-//     for y := src.Rect.Min.Y; y < src.Rect.Max.Y; y++ {
-//         for x := src.Rect.Min.X; x < src.Rect.Max.X; x++ {
-//             var sum float64
-//             var i int
-//             for yo := y - 1; yo <= y+1; yo++ {
-//                 for xo := x - 1; xo <= x+1; xo++ {
-//                     if (image.Point{xo, yo}).In(src.Rect) {
-//                         sum += k[i] * float64(src.At(xo, yo).(color.Gray).Y)
-//                     } else {
-//                         sum += k[i] * float64(src.At(x, y).(color.Gray).Y)
-//                     }
-//                     i++
-//                 }
-//             }
-//             dst.SetGray(x, y,
-//                 color.Gray{uint8(math.Min(255, math.Max(0, sum)))})
-//         }
-//     }
-// }
-
 import (
 	"log"
-	"math/rand"
 )
-
-
 
 func createGameBoardExtended(gameState GameState) GameBoardExtended {
 	boardHeight := gameState.Board.Height
 	boardWidth := gameState.Board.Width
 	var gameBoard GameBoardExtended
 	for i := 0; i < boardHeight; i++ {
-		var line = []CoordExtended{}
+		var line = []Tile{}
 		for j := 0; j < boardWidth; j++ {
-			line = append(line, CoordExtended{content: Empty})
+			line = append(line, Tile{content: Empty})
 		}
 		gameBoard = append(gameBoard, line)
 	}
 
-  // fill content - snakes
+	// fill content - snakes
 	for _, bs := range gameState.Board.Snakes {
-    headEx := gameBoard[bs.Head.X][bs.Head.Y]
-    headEx.content = Head
-    for _, bsCoord := range bs.Body {
-      ce := gameBoard[bsCoord.X][bsCoord.Y]
-      ce.content = Body
-    }
-  }
-  // fill content - food
+		headEx := gameBoard[bs.Head.X][bs.Head.Y]
+		headEx.content = Head
+		for _, bsCoord := range bs.Body {
+			ce := gameBoard[bsCoord.X][bsCoord.Y]
+			ce.content = Body
+		}
+	}
+	// fill content - food
 	for _, food := range gameState.Board.Food {
-      gameBoard[food.X][food.Y].content = Food
-  }
-
-  // TODO: Get the score only of the self head's neighbours
-  // TODO: Move this out of createGameBoardExtended
-  // calculate score
-	for _, bs := range gameState.Board.Snakes {
-    for _, bsCoord := range bs.Body {
-      ce := gameBoard[bsCoord.X][bsCoord.Y]
-      ce.totalScore = getNeighbourScore(gameBoard, bsCoord)
-    }
-  }
+		gameBoard[food.X][food.Y].content = Food
+	}
 
 	return gameBoard
 }
 
 func getNeighbourScore(gb GameBoardExtended, current Coord) int {
-  boardHeight := len(gb)
-  boardWidth := len(gb[0])
-  
-  score := 0
-  var x, y int
+	boardHeight := len(gb)
+	boardWidth := len(gb[0])
 
-  for i:=-1; i <= 1; i++ {
-    for j:=-1; j <= 1; j++ {
-      x = current.X + i
-      y = current.Y + j
-      if (x < 0 || y < 0 || x == boardWidth || y == boardHeight) {
-        score += Wall.score()
-      } else {
-        score += gb[x][y].score()
-      }
-    }
-  }
+	score := 0
+	var x, y int
 
-  return score
+	for i := -1; i <= 1; i++ {
+		for j := -1; j <= 1; j++ {
+			x = current.X + i
+			y = current.Y + j
+			if x < 0 || y < 0 || x == boardWidth || y == boardHeight {
+				score += int(Wall)
+			} else {
+				score += gb[x][y].value()
+			}
+		}
+	}
+
+	return score
 }
 
 func move(state GameState) BattlesnakeMoveResponse {
@@ -112,21 +63,7 @@ func move(state GameState) BattlesnakeMoveResponse {
 		"right": true,
 	}
 
-	// Step 0: Don't let your Battlesnake move back in on it's own neck
-	myHead := state.You.Body[0] // Coordinates of your head
-	myNeck := state.You.Body[1] // Coordinates of body piece directly behind your head (your "neck")
-	if myNeck.X < myHead.X {
-		possibleMoves["left"] = false
-	} else if myNeck.X > myHead.X {
-		possibleMoves["right"] = false
-	} else if myNeck.Y < myHead.Y {
-		possibleMoves["down"] = false
-	} else if myNeck.Y > myHead.Y {
-		possibleMoves["up"] = false
-	}
-
 	// Step 1 - Don't hit walls.
-	// Use information in GameState to prevent your Battlesnake from moving beyond the boundaries of the board.
 	boardWidth := state.Board.Width
 	boardHeight := state.Board.Height
 
@@ -134,6 +71,8 @@ func move(state GameState) BattlesnakeMoveResponse {
 	rightEnd := boardWidth - 1
 	bottomEnd := 0
 	topEnd := boardHeight - 1
+
+  myHead := state.You.Head
 
 	// The head is on left or right ends
 	if myHead.X == leftEnd {
@@ -150,40 +89,35 @@ func move(state GameState) BattlesnakeMoveResponse {
 		possibleMoves["up"] = false
 	}
 
-	// Step 2 - Don't hit yourself.
-	// Use information in GameState to prevent your Battlesnake from colliding with itself.
-	myBody := state.You.Body
+	// Step 2 - Don't hit any snakes (including self).
 
-	// Check the 4 positions arround the head
-	leftHead := Coord{X: myHead.X - 1, Y: myHead.Y}
-	rightHead := Coord{X: myHead.X + 1, Y: myHead.Y}
-	bottomHead := Coord{X: myHead.X, Y: myHead.Y - 1}
-	topHead := Coord{X: myHead.X, Y: myHead.Y + 1}
+  gameBoardEx := createGameBoardExtended(state)
+  
+  leftHead := Coord{X: myHead.X - 1, Y: myHead.Y}
+  rightHead := Coord{X: myHead.X + 1, Y: myHead.Y}
+  upHead := Coord{X: myHead.X, Y: myHead.Y + 1}
+  downHead := Coord{X: myHead.X, Y: myHead.Y - 1}
 
-	for _, bodyPart := range myBody {
-		if leftHead == bodyPart {
-			possibleMoves["left"] = false
-		}
-		if rightHead == bodyPart {
-			possibleMoves["right"] = false
-		}
-		if bottomHead == bodyPart {
-			possibleMoves["down"] = false
-		}
-		if topHead == bodyPart {
-			possibleMoves["up"] = false
-		}
-	}
+  if possibleMoves["left"] {
+    leftHeadField := gameBoardEx[leftHead.X][leftHead.Y]
+    possibleMoves["left"] = leftHeadField.isSafeMove()
+  }
 
-	// TODO: Step 3 - Don't collide with others.
-	// Use information in GameState to prevent your Battlesnake from colliding with others.
+  if possibleMoves["right"] {
+    rightHeadField := gameBoardEx[rightHead.X][rightHead.Y]
+    possibleMoves["right"] = rightHeadField.isSafeMove()
+  }
 
-	// TODO: Step 4 - Find food.
-	// Use information in GameState to seek out and find food.
+  if possibleMoves["up"] {
+    upHeadField := gameBoardEx[upHead.X][upHead.Y]
+    possibleMoves["up"] = upHeadField.isSafeMove()
+  }
 
-	// Finally, choose a move from the available safe moves.
-	// TODO: Step 5 - Select a move to make based on strategy, rather than random.
-	var nextMove string
+  if possibleMoves["down"] {
+    downHeadField := gameBoardEx[downHead.X][downHead.Y]
+    possibleMoves["down"] = downHeadField.isSafeMove()
+  }
+
 
 	safeMoves := []string{}
 	for move, isSafe := range possibleMoves {
@@ -192,11 +126,33 @@ func move(state GameState) BattlesnakeMoveResponse {
 		}
 	}
 
+  var maxScore = -9000
+  var nextMove string = "down"
+
+	for _, move := range safeMoves {
+		var neighbour Coord
+		switch move {
+		case "up":
+			neighbour = upHead
+		case "down":
+			neighbour = downHead
+		case "left":
+			neighbour = leftHead
+		case "right":
+			neighbour = rightHead
+		}
+
+    nScore := getNeighbourScore(gameBoardEx, neighbour)
+    log.Printf("For possible move '%s' we've calculated score: %d", move, nScore)  
+    if nScore > maxScore {
+      maxScore = nScore
+      nextMove = move
+    }
+	}
+
 	if len(safeMoves) == 0 {
-		nextMove = "down"
 		log.Printf("%s MOVE %d: No safe moves detected! Moving %s\n", state.Game.ID, state.Turn, nextMove)
 	} else {
-		nextMove = safeMoves[rand.Intn(len(safeMoves))]
 		log.Printf("%s MOVE %d: %s\n", state.Game.ID, state.Turn, nextMove)
 	}
 	return BattlesnakeMoveResponse{

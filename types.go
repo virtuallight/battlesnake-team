@@ -8,22 +8,22 @@ const (
 	Body ContentType = -1
 	Head ContentType = -2
   Wall ContentType = -3
+  Hazard ContentType = -2
 )
 
-type CoordExtended struct {
-  totalScore int
+type Tile struct {
 	content ContentType
 }
 
-func (c *CoordExtended) score() int {
-  return c.content.score()
+func (t *Tile) value() int {
+  return int(t.content)
 }
 
-func (c ContentType) score() int {
-  return int(c)
+func (t *Tile) isSafeMove() bool {
+  return t.content == Empty || t.content == Food 
 }
 
-type GameBoardExtended [][]CoordExtended
+type GameBoardExtended [][]Tile
 
 // --
 
