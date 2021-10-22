@@ -18,16 +18,25 @@ func createGameBoardExtended(gameState GameState) GameBoardExtended {
 
 	// fill content - snakes
 	for _, bs := range gameState.Board.Snakes {
-		headEx := gameBoard[bs.Head.X][bs.Head.Y]
-		headEx.content = Head
 		for _, bsCoord := range bs.Body {
-			ce := gameBoard[bsCoord.X][bsCoord.Y]
-			ce.content = Body
+			// We need to adapt the coordinate values because
+			// what we get is the Cartesian coordinate system:
+			// - X - represents the position on the X axis
+			//       i.e. 0 on the left side of the board
+			// - Y - represents the position on the Y axis
+			//       i.e. 0 on the bottom side of the board
+			// But we want to put this in a matrix where:
+			// - X - represents the X-th column in each row (starting with 0)
+			// - Y - represents the Y-th row (starting with 0)
+			// So, we need to "flipt" Y so that we keep the same
+			// visual representation of the board.
+			gameBoard[boardHeight-bsCoord.Y-1][bsCoord.X] = Tile{Body}
 		}
+		gameBoard[boardHeight-bs.Head.Y-1][bs.Head.X] = Tile{Head}
 	}
 	// fill content - food
 	for _, food := range gameState.Board.Food {
-		gameBoard[food.X][food.Y].content = Food
+		gameBoard[boardHeight-food.Y-1][food.X] = Tile{Food}
 	}
 
 	return gameBoard
@@ -72,7 +81,7 @@ func move(state GameState) BattlesnakeMoveResponse {
 	bottomEnd := 0
 	topEnd := boardHeight - 1
 
-  myHead := state.You.Head
+	myHead := state.You.Head
 
 	// The head is on left or right ends
 	if myHead.X == leftEnd {
@@ -91,33 +100,32 @@ func move(state GameState) BattlesnakeMoveResponse {
 
 	// Step 2 - Don't hit any snakes (including self).
 
-  gameBoardEx := createGameBoardExtended(state)
-  
-  leftHead := Coord{X: myHead.X - 1, Y: myHead.Y}
-  rightHead := Coord{X: myHead.X + 1, Y: myHead.Y}
-  upHead := Coord{X: myHead.X, Y: myHead.Y + 1}
-  downHead := Coord{X: myHead.X, Y: myHead.Y - 1}
+	gameBoardEx := createGameBoardExtended(state)
 
-  if possibleMoves["left"] {
-    leftHeadField := gameBoardEx[leftHead.X][leftHead.Y]
-    possibleMoves["left"] = leftHeadField.isSafeMove()
-  }
+	leftHead := Coord{X: myHead.X - 1, Y: myHead.Y}
+	rightHead := Coord{X: myHead.X + 1, Y: myHead.Y}
+	upHead := Coord{X: myHead.X, Y: myHead.Y + 1}
+	downHead := Coord{X: myHead.X, Y: myHead.Y - 1}
 
-  if possibleMoves["right"] {
-    rightHeadField := gameBoardEx[rightHead.X][rightHead.Y]
-    possibleMoves["right"] = rightHeadField.isSafeMove()
-  }
+	if possibleMoves["left"] {
+		leftHeadField := gameBoardEx[leftHead.X][leftHead.Y]
+		possibleMoves["left"] = leftHeadField.isSafeMove()
+	}
 
-  if possibleMoves["up"] {
-    upHeadField := gameBoardEx[upHead.X][upHead.Y]
-    possibleMoves["up"] = upHeadField.isSafeMove()
-  }
+	if possibleMoves["right"] {
+		rightHeadField := gameBoardEx[rightHead.X][rightHead.Y]
+		possibleMoves["right"] = rightHeadField.isSafeMove()
+	}
 
-  if possibleMoves["down"] {
-    downHeadField := gameBoardEx[downHead.X][downHead.Y]
-    possibleMoves["down"] = downHeadField.isSafeMove()
-  }
+	if possibleMoves["up"] {
+		upHeadField := gameBoardEx[upHead.X][upHead.Y]
+		possibleMoves["up"] = upHeadField.isSafeMove()
+	}
 
+	if possibleMoves["down"] {
+		downHeadField := gameBoardEx[downHead.X][downHead.Y]
+		possibleMoves["down"] = downHeadField.isSafeMove()
+	}
 
 	safeMoves := []string{}
 	for move, isSafe := range possibleMoves {
@@ -126,8 +134,8 @@ func move(state GameState) BattlesnakeMoveResponse {
 		}
 	}
 
-  var maxScore = -9000
-  var nextMove string = "down"
+	var maxScore = -9000
+	var nextMove string = "down"
 
 	for _, move := range safeMoves {
 		var neighbour Coord
@@ -142,12 +150,12 @@ func move(state GameState) BattlesnakeMoveResponse {
 			neighbour = rightHead
 		}
 
-    nScore := getNeighbourScore(gameBoardEx, neighbour)
-    log.Printf("For possible move '%s' we've calculated score: %d", move, nScore)  
-    if nScore > maxScore {
-      maxScore = nScore
-      nextMove = move
-    }
+		nScore := getNeighbourScore(gameBoardEx, neighbour)
+		log.Printf("For possible move '%s' we've calculated score: %d", move, nScore)
+		if nScore > maxScore {
+			maxScore = nScore
+			nextMove = move
+		}
 	}
 
 	if len(safeMoves) == 0 {

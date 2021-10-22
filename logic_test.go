@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/matryer/is"
 )
 
 func TestNeckAvoidance(t *testing.T) {
@@ -13,6 +15,8 @@ func TestNeckAvoidance(t *testing.T) {
 	}
 	state := GameState{
 		Board: Board{
+			Height: 10,
+			Width:  20,
 			Snakes: []Battlesnake{me},
 		},
 		You: me,
@@ -29,20 +33,56 @@ func TestNeckAvoidance(t *testing.T) {
 }
 
 func TestCreateGameBoardExtended(t *testing.T) {
-	// Creating the GameState
-	state := GameState{
-		Board: Board{
-			Height: 10,
-			Width:  20,
+
+	testData := []struct {
+		state                 GameState
+		expectedExtendedBoard GameBoardExtended
+	}{
+		{
+			state: GameState{
+				Board: Board{
+					Height: 2,
+					Width:  3,
+				},
+			},
+			expectedExtendedBoard: GameBoardExtended{
+				{Tile{}, Tile{}, Tile{}},
+				{Tile{}, Tile{}, Tile{}},
+			},
+		},
+		{
+			state: GameState{
+				Board: Board{
+					Height: 3,
+					Width:  4,
+					Snakes: []Battlesnake{
+						{
+							Head: Coord{X: 2, Y: 0},
+							Body: []Coord{{X: 2, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 0}},
+						},
+						{
+							Head: Coord{X: 2, Y: 1},
+							Body: []Coord{{X: 2, Y: 1}},
+						},
+					},
+					Food: []Coord{
+						{X: 3, Y: 2},
+						{X: 3, Y: 0},
+					},
+				},
+			},
+			expectedExtendedBoard: GameBoardExtended{
+				{Tile{}, Tile{}, Tile{}, Tile{Food}},
+				{Tile{}, Tile{}, Tile{Head}, Tile{}},
+				{Tile{Body}, Tile{Body}, Tile{Head}, Tile{Food}},
+			},
 		},
 	}
-	gameBoardExtended := createGameBoardExtended(state)
-	if len(gameBoardExtended) != 10 {
-		t.Errorf("game board of incorrect height: %d", len(gameBoardExtended))
-	}
-	for i := 0; i < 10; i++ {
-		if len(gameBoardExtended[i]) != 20 {
-			t.Errorf("game board of incorrect widgth: %d", len(gameBoardExtended[i]))
-		}
+
+	is := is.New(t)
+
+	for _, data := range testData {
+		gameBoardExtended := createGameBoardExtended(data.state)
+		is.Equal(gameBoardExtended, data.expectedExtendedBoard) // The result gameBoardExtended isn't what we expected it to be
 	}
 }
