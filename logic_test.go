@@ -45,10 +45,10 @@ func TestCreateGameBoardExtended(t *testing.T) {
 					Width:  3,
 				},
 			},
-			expectedExtendedBoard: GameBoardExtended{
+			expectedExtendedBoard: convertToGBE(VisualGameBoardExtended{
 				{Tile{}, Tile{}, Tile{}},
 				{Tile{}, Tile{}, Tile{}},
-			},
+			}),
 		},
 		{
 			state: GameState{
@@ -71,11 +71,11 @@ func TestCreateGameBoardExtended(t *testing.T) {
 					},
 				},
 			},
-			expectedExtendedBoard: GameBoardExtended{
+			expectedExtendedBoard: convertToGBE(VisualGameBoardExtended{
 				{Tile{}, Tile{}, Tile{}, Tile{Food}},
 				{Tile{}, Tile{}, Tile{Head}, Tile{}},
 				{Tile{Body}, Tile{Body}, Tile{Head}, Tile{Food}},
-			},
+			}),
 		},
 	}
 
@@ -86,3 +86,29 @@ func TestCreateGameBoardExtended(t *testing.T) {
 		is.Equal(gameBoardExtended, data.expectedExtendedBoard) // The result gameBoardExtended isn't what we expected it to be
 	}
 }
+
+type VisualGameBoardExtended [][]Tile
+
+// convertToGBE takes a visual representation of game board
+// (where value at (0, 0) is at the bottom left corner)
+// and converts it, so that the field at (0, 0)
+// is actually represented on GameBoardExtended at the [0][0] index and so on.
+func convertToGBE(visual VisualGameBoardExtended) GameBoardExtended {
+	gbe := GameBoardExtended{}
+	rows := len(visual[0]) // height
+	columns := len(visual) // width
+	for x := 0; x < rows; x++ {
+		line := []Tile{}
+		for y := 0; y < columns; y++ {
+			line = append(line, visual[columns-y-1][x])
+		}
+		gbe = append(gbe, line)
+	}
+	return gbe
+}
+
+// func convertFromGBE(gbe GameBoardExtended) VisualGameBoardExtended {
+// 	var tiles [][]Tile
+
+// 	return tiles
+// }

@@ -8,9 +8,9 @@ func createGameBoardExtended(gameState GameState) GameBoardExtended {
 	boardHeight := gameState.Board.Height
 	boardWidth := gameState.Board.Width
 	var gameBoard GameBoardExtended
-	for i := 0; i < boardHeight; i++ {
+	for i := 0; i < boardWidth; i++ {
 		var line = []Tile{}
-		for j := 0; j < boardWidth; j++ {
+		for j := 0; j < boardHeight; j++ {
 			line = append(line, Tile{content: Empty})
 		}
 		gameBoard = append(gameBoard, line)
@@ -19,24 +19,13 @@ func createGameBoardExtended(gameState GameState) GameBoardExtended {
 	// fill content - snakes
 	for _, bs := range gameState.Board.Snakes {
 		for _, bsCoord := range bs.Body {
-			// We need to adapt the coordinate values because
-			// what we get is the Cartesian coordinate system:
-			// - X - represents the position on the X axis
-			//       i.e. 0 on the left side of the board
-			// - Y - represents the position on the Y axis
-			//       i.e. 0 on the bottom side of the board
-			// But we want to put this in a matrix where:
-			// - X - represents the X-th column in each row (starting with 0)
-			// - Y - represents the Y-th row (starting with 0)
-			// So, we need to "flipt" Y so that we keep the same
-			// visual representation of the board.
-			gameBoard[boardHeight-bsCoord.Y-1][bsCoord.X] = Tile{Body}
+			gameBoard[bsCoord.X][bsCoord.Y] = Tile{Body}
 		}
-		gameBoard[boardHeight-bs.Head.Y-1][bs.Head.X] = Tile{Head}
+		gameBoard[bs.Head.X][bs.Head.Y] = Tile{Head}
 	}
 	// fill content - food
 	for _, food := range gameState.Board.Food {
-		gameBoard[boardHeight-food.Y-1][food.X] = Tile{Food}
+		gameBoard[food.X][food.Y] = Tile{Food}
 	}
 
 	return gameBoard
