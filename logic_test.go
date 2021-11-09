@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/matryer/is"
@@ -34,7 +35,7 @@ var testData = []struct {
 					},
 					{
 						Head: Coord{X: 2, Y: 1},
-						Body: []Coord{{X: 2, Y: 1}},
+						Body: []Coord{{X: 2, Y: 1}, {X: 2, Y: 2}, {X: 1, Y: 2}},
 					},
 				},
 				Food: []Coord{
@@ -44,34 +45,82 @@ var testData = []struct {
 			},
 		},
 		expectedExtendedBoard: convertToGBE(VisualGameBoardExtended{
-			{Tile{}, Tile{}, Tile{}, Tile{Food}},
+			{Tile{}, Tile{Body}, Tile{Body}, Tile{Food}},
 			{Tile{}, Tile{}, Tile{Head}, Tile{}},
 			{Tile{Body}, Tile{Body}, Tile{Head}, Tile{Food}},
 		}),
 	},
 }
 
-func TestNeckAvoidance(t *testing.T) {
-	// Arrange
-	me := Battlesnake{
-		// Length 3, facing right
-		Head: Coord{X: 2, Y: 0},
-		Body: []Coord{{X: 2, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 0}},
-	}
-	state := GameState{
-		Board: Board{
-			Height: 10,
-			Width:  20,
-			Snakes: []Battlesnake{me},
+var neckTestData = []struct {
+	state  	GameState
+	neck	string
+}{
+	// Neck on the left
+	{
+		state: GameState{
+			Board: Board{
+				Height: 3,
+				Width:  4,
+			},
+			You: Battlesnake{
+				Head: Coord{X: 2, Y: 0},
+				Body: []Coord{{X: 2, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 0}},
+			},
 		},
-		You: me,
-	}
+		neck: "left",
+	},
+	// Neck on the right
+	{
+		state: GameState{
+			Board: Board{
+				Height: 3,
+				Width:  4,
+			},
+			You: Battlesnake{
+				Head: Coord{X: 0, Y: 0},
+				Body: []Coord{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 0}},
+			},
+		},
+		neck: "right",
+	},
+	// Neck up
+	{
+		state: GameState{
+			Board: Board{
+				Height: 3,
+				Width:  4,
+			},
+			You: Battlesnake{
+				Head: Coord{X: 0, Y: 0},
+				Body: []Coord{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 0, Y: 2}},
+			},
+		},
+		neck: "up",
+	},
+	// Neck down
+	{
+		state: GameState{
+			Board: Board{
+				Height: 3,
+				Width:  4,
+			},
+			You: Battlesnake{
+				Head: Coord{X: 1, Y: 2},
+				Body: []Coord{{X: 1, Y: 2}, {X: 1, Y: 1}, {X: 2, Y: 1}},
+			},
+		},
+		neck: "down",
+	},
+}
 
+func TestNeckAvoidance(t *testing.T) {
 	// Act 1,000x (this isn't a great way to test, but it's okay for starting out)
-	for i := 0; i < 1000; i++ {
-		nextMove := move(state)
-		// Assert never move left
-		if nextMove.Move == "left" {
+	for _, data := range neckTestData {
+		fmt.Println("testing", data.neck)
+		nextMove := move(data.state)
+		// Assert never move to the nexk
+		if nextMove.Move == data.neck {
 			t.Errorf("snake moved onto its own neck, %s", nextMove.Move)
 		}
 	}
