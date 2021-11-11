@@ -53,8 +53,8 @@ var testData = []struct {
 }
 
 var neckTestData = []struct {
-	state  	GameState
-	neck	string
+	state GameState
+	neck  string
 }{
 	// Neck on the left
 	{
@@ -62,6 +62,12 @@ var neckTestData = []struct {
 			Board: Board{
 				Height: 3,
 				Width:  4,
+				Snakes: []Battlesnake{
+					{
+						Head: Coord{X: 2, Y: 0},
+						Body: []Coord{{X: 2, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 0}},
+					},
+				},
 			},
 			You: Battlesnake{
 				Head: Coord{X: 2, Y: 0},
@@ -76,6 +82,12 @@ var neckTestData = []struct {
 			Board: Board{
 				Height: 3,
 				Width:  4,
+				Snakes: []Battlesnake{
+					{
+						Head: Coord{X: 0, Y: 0},
+						Body: []Coord{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 0}},
+					},
+				},
 			},
 			You: Battlesnake{
 				Head: Coord{X: 0, Y: 0},
@@ -90,6 +102,12 @@ var neckTestData = []struct {
 			Board: Board{
 				Height: 3,
 				Width:  4,
+				Snakes: []Battlesnake{
+					{
+						Head: Coord{X: 0, Y: 0},
+						Body: []Coord{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 0, Y: 2}},
+					},
+				},
 			},
 			You: Battlesnake{
 				Head: Coord{X: 0, Y: 0},
@@ -104,6 +122,12 @@ var neckTestData = []struct {
 			Board: Board{
 				Height: 3,
 				Width:  4,
+				Snakes: []Battlesnake{
+					{
+						Head: Coord{X: 1, Y: 2},
+						Body: []Coord{{X: 1, Y: 2}, {X: 1, Y: 1}, {X: 2, Y: 1}},
+					},
+				},
 			},
 			You: Battlesnake{
 				Head: Coord{X: 1, Y: 2},
@@ -115,7 +139,6 @@ var neckTestData = []struct {
 }
 
 func TestNeckAvoidance(t *testing.T) {
-	// Act 1,000x (this isn't a great way to test, but it's okay for starting out)
 	for _, data := range neckTestData {
 		fmt.Println("testing", data.neck)
 		nextMove := move(data.state)

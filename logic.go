@@ -32,8 +32,8 @@ func createGameBoardExtended(gameState GameState) GameBoardExtended {
 }
 
 func getNeighbourScore(gb GameBoardExtended, current Coord) int {
-	boardHeight := len(gb)
-	boardWidth := len(gb[0])
+	boardHeight := len(gb[0])
+	boardWidth := len(gb)
 
 	score := 0
 	var x, y int
