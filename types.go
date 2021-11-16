@@ -3,8 +3,8 @@ package main
 type ContentType int
 
 const (
-	Empty  ContentType = 0
-	Food   ContentType = 2
+	Empty ContentType = 0
+	//Food   ContentType = 2
 	Body   ContentType = -1
 	Head   ContentType = -2
 	Wall   ContentType = -3
