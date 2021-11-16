@@ -7,7 +7,6 @@ import (
 	"os"
 )
 
-
 // Response Structs
 
 type BattlesnakeInfoResponse struct {

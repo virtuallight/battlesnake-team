@@ -3,12 +3,12 @@ package main
 type ContentType int
 
 const (
-	Empty ContentType = 0
-  Food ContentType = 2
-	Body ContentType = -1
-	Head ContentType = -2
-  Wall ContentType = -3
-  Hazard ContentType = -2
+	Empty  ContentType = 0
+	Food   ContentType = 2
+	Body   ContentType = -1
+	Head   ContentType = -2
+	Wall   ContentType = -3
+	Hazard ContentType = -2
 )
 
 type Tile struct {
@@ -16,11 +16,11 @@ type Tile struct {
 }
 
 func (t *Tile) value() int {
-  return int(t.content)
+	return int(t.content)
 }
 
 func (t *Tile) isSafeMove() bool {
-  return t.content == Empty || t.content == Food 
+	return t.content == Empty || t.content == Food
 }
 
 type GameBoardExtended [][]Tile
