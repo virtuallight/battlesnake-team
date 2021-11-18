@@ -212,7 +212,7 @@ func convertFromGBE(gbe GameBoardExtended) VisualGameBoardExtended {
 	return visual
 }
 
-// TODO: Test BFS to find food
+// TODO: Test BFS to find food, write a test for checkFood function
 //
 // BFS will crawl the board looking for food.
 // We start on our Head and the next nodes will be

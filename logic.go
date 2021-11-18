@@ -53,6 +53,15 @@ func getNeighbourScore(gb GameBoardExtended, current Coord) int {
 	return score
 }
 
+
+// checkFood returns the shortest path and the next direction to move for it
+// for the given slice of food coordinates or -1 and empty string if the food is unreachable
+func checkFood(gb GameBoardExtended, current Coord, foods []Coord) (int, string){
+	// TODO: write this
+
+	return -1, ""
+}
+
 func move(state GameState) BattlesnakeMoveResponse {
 	possibleMoves := map[string]bool{
 		"up":    true,
