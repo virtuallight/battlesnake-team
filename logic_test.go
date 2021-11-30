@@ -221,6 +221,34 @@ func convertFromGBE(gbe GameBoardExtended) VisualGameBoardExtended {
 // then we continue recursively until we exhaust
 // all options or find Food.
 // Remember to always discard already visited fields.
-// Is this always the shortest path to Food i.e. won't we "block"
-// a shorter path by excluding some of the already visited
-// fields?
+var testCheckFoodData = []struct {
+	id				  string
+	extendedBoard     GameBoardExtended
+	head              Coord
+	expectedLength    int
+	expectedDirection string
+}{
+	{
+		id: "Check for reachable food",
+		extendedBoard: convertToGBE(VisualGameBoardExtended{
+			{Tile{Body}, Tile{Body}, Tile{}, Tile{}},
+			{Tile{Body}, Tile{Head}, Tile{Body}, Tile{Food}},
+			{Tile{}, Tile{}, Tile{Body}, Tile{}},
+			{Tile{Food}, Tile{}, Tile{Head}, Tile{Food}},
+		}),
+		head:              Coord{X: 1, Y: 2},
+		expectedLength:    3,
+		expectedDirection: "down",
+	},
+}
+
+func TestCheckFood(t *testing.T) {
+	for _, data := range testCheckFoodData {
+		t.Run(data.id, func(t *testing.T) {
+			is := is.NewRelaxed(t)
+			shortestLength, direction := checkFood(data.extendedBoard, data.head)
+			is.Equal(shortestLength, data.expectedLength)  // The shortest path has a different length
+			is.Equal(direction, data.expectedDirection)  // The direction for the shortest path is different
+		})
+	}
+}

@@ -54,9 +54,9 @@ func getNeighbourScore(gb GameBoardExtended, current Coord) int {
 }
 
 
-// checkFood returns the shortest path and the next direction to move for it
-// for the given slice of food coordinates or -1 and empty string if the food is unreachable
-func checkFood(gb GameBoardExtended, current Coord, foods []Coord) (int, string){
+// checkFood returns the shortest path length and the next direction to move 
+// towards the closest food or -1 and empty string if there are no reachable food.
+func checkFood(gb GameBoardExtended, current Coord) (int, string){
 	// TODO: write this
 
 	return -1, ""
