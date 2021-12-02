@@ -53,11 +53,22 @@ func getNeighbourScore(gb GameBoardExtended, current Coord) int {
 	return score
 }
 
+type ExtendedCoord struct {
+	coord  Coord
+	parent *ExtendedCoord
+	length int
+}
 
-// checkFood returns the shortest path length and the next direction to move 
+// checkFood returns the shortest path length and the next direction to move
 // towards the closest food or -1 and empty string if there are no reachable food.
-func checkFood(gb GameBoardExtended, current Coord) (int, string){
-	// TODO: write this
+func checkFood(gb GameBoardExtended, current Coord) (int, string) {
+	root := ExtendedCoord{
+		coord:  current,
+		length: 0,
+	}
+
+	visitedNodes := map[Coord]bool{}
+	visitedNodes[root.coord] = true
 
 	return -1, ""
 }
