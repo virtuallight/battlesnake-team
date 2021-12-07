@@ -240,6 +240,18 @@ var testCheckFoodData = []struct {
 		expectedLength:    3,
 		expectedDirection: "down",
 	},
+	{
+		id: "Head is food",
+		extendedBoard: convertToGBE(VisualGameBoardExtended{
+			{Tile{Body}, Tile{Body}, Tile{}, Tile{}},
+			{Tile{Body}, Tile{Food}, Tile{Body}, Tile{Food}},
+			{Tile{}, Tile{}, Tile{Body}, Tile{}},
+			{Tile{Food}, Tile{}, Tile{Head}, Tile{Food}},
+		}),
+		head:              Coord{X: 1, Y: 2},
+		expectedLength:    0,
+		expectedDirection: "",
+	},
 }
 
 func TestCheckFood(t *testing.T) {

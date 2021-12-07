@@ -70,6 +70,39 @@ func checkFood(gb GameBoardExtended, current Coord) (int, string) {
 	visitedNodes := map[Coord]bool{}
 	visitedNodes[root.coord] = true
 
+	queue := []ExtendedCoord{}
+	queue = append(queue, root)
+
+	// Main loop for BFS
+	for len(queue) > 0 {
+		// Pop the first element from the queue
+		element := queue[0]
+		queue = queue[1:]
+
+		// Check if the element is food (stop condition)
+		if gb[element.coord.X][element.coord.Y].content == Food {
+			direction := ""
+			// Find the initial direction
+			node := element
+			for node.parent != &root && node.parent != nil {
+				node = *node.parent
+			}
+			if root.coord.X > node.coord.X {
+				direction = "left"
+			} else if root.coord.X < node.coord.X {
+				direction = "right"
+			} else if root.coord.Y > node.coord.Y {
+				direction = "down"
+			} else if root.coord.Y < node.coord.Y {
+				direction = "up"
+			}
+
+			return element.length, direction
+		}
+		// TODO: Put the neighbours in the queue
+
+	}
+
 	return -1, ""
 }
 
