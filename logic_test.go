@@ -234,7 +234,7 @@ var testCheckFoodData = []struct {
 			{Tile{Body}, Tile{Body}, Tile{}, Tile{}},
 			{Tile{Body}, Tile{Head}, Tile{Body}, Tile{Food}},
 			{Tile{}, Tile{}, Tile{Body}, Tile{}},
-			{Tile{Food}, Tile{}, Tile{Head}, Tile{Food}},
+			{Tile{Food}, Tile{Body}, Tile{Head}, Tile{Food}},
 		}),
 		head:              Coord{X: 1, Y: 2},
 		expectedLength:    3,
