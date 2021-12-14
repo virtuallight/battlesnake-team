@@ -119,11 +119,9 @@ func getPossibleNeighbours(gb GameBoardExtended, current Coord) []Coord {
 func findInitialDirection(root ExtendedCoord, node ExtendedCoord) string {
 	direction := ""
 
-	// for node.parent != &root && node.parent != nil {
-	// 	fmt.Println("node: ", node, "parent: ", *node.parent, "root: ", root)
-	// 	node = *node.parent
-	// }
-	for i := 0; i < node.length; i++ {
+	// Find the first neighbour of root by following the parents of node
+	pathLength := node.length
+	for i := 0; i < pathLength-1; i++ {
 		node = *node.parent
 	}
 
@@ -150,8 +148,7 @@ func checkFood(gb GameBoardExtended, current Coord) (int, string) {
 	}
 
 	visitedNodes := map[Coord]bool{}
-	//visitedNodes[root.coord] = true
-
+	
 	queue := []ExtendedCoord{}
 	queue = append(queue, root)
 

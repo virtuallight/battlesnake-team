@@ -241,6 +241,21 @@ var testCheckFoodData = []struct {
 		expectedDirection: "down",
 	},
 	{
+		id: "Check for distant reachable food",
+		extendedBoard: convertToGBE(VisualGameBoardExtended{
+			{Tile{Body}, Tile{Body}, Tile{}, Tile{}},
+			{Tile{}, Tile{Head}, Tile{Body}, Tile{Food}},
+			{Tile{}, Tile{Body}, Tile{Body}, Tile{}},
+			{Tile{}, Tile{Body}, Tile{}, Tile{}},
+			{Tile{}, Tile{Body}, Tile{Body}, Tile{}},
+			{Tile{}, Tile{}, Tile{Body}, Tile{}},
+			{Tile{Food}, Tile{}, Tile{Head}, Tile{Food}},
+		}),
+		head:              Coord{X: 1, Y: 5},
+		expectedLength:    6,
+		expectedDirection: "left",
+	},
+	{
 		id: "Head is food",
 		extendedBoard: convertToGBE(VisualGameBoardExtended{
 			{Tile{Body}, Tile{Body}, Tile{}, Tile{}},
