@@ -71,7 +71,8 @@ func isValidTile(content ContentType) bool {
 	return false
 }
 
-//getPossibleNeighbours returns an array of Coord with the empty neighbours of a Coord
+//getPossibleNeighbours returns an array of Coord with possible neighbours of a Coord
+// TODO: uniform with the logic in the move function
 func getPossibleNeighbours(gb GameBoardExtended, current Coord) []Coord {
 	result := []Coord{}
 	width := len(gb)
