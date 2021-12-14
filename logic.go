@@ -63,10 +63,10 @@ type ExtendedCoord struct {
 // isValidTile returns true if the Tile is good to go to
 func isValidTile(content ContentType) bool {
 	switch content {
-		case
-			Food,
-			Empty:
-			return true
+	case
+		Food,
+		Empty:
+		return true
 	}
 	return false
 }
@@ -75,10 +75,10 @@ func isValidTile(content ContentType) bool {
 func getPossibleNeighbours(gb GameBoardExtended, current Coord) []Coord {
 	result := []Coord{}
 	width := len(gb)
-	height := len(gb)
+	height := len(gb[0])
 
 	// check up if no wall up
-	if current.Y != height - 1 {
+	if current.Y != height-1 {
 		upCoord := Coord{X: current.X, Y: current.Y + 1}
 		if isValidTile(gb[upCoord.X][upCoord.Y].content) {
 			result = append(result, upCoord)
@@ -102,7 +102,7 @@ func getPossibleNeighbours(gb GameBoardExtended, current Coord) []Coord {
 	}
 
 	// check right if no wall right
-	if current.X != width - 1 {
+	if current.X != width-1 {
 		rightCoord := Coord{X: current.X + 1, Y: current.Y}
 		if isValidTile(gb[rightCoord.X][rightCoord.Y].content) {
 			result = append(result, rightCoord)
@@ -117,7 +117,7 @@ func getPossibleNeighbours(gb GameBoardExtended, current Coord) []Coord {
 // and ExtendedCoord
 func findInitialDirection(root ExtendedCoord, node ExtendedCoord) string {
 	direction := ""
-	
+
 	// for node.parent != &root && node.parent != nil {
 	// 	fmt.Println("node: ", node, "parent: ", *node.parent, "root: ", root)
 	// 	node = *node.parent
@@ -125,7 +125,7 @@ func findInitialDirection(root ExtendedCoord, node ExtendedCoord) string {
 	for i := 0; i < node.length; i++ {
 		node = *node.parent
 	}
-	
+
 	fmt.Println("root: ", root, "node: ", node)
 	if root.coord.X > node.coord.X {
 		direction = "left"
