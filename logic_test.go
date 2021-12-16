@@ -222,7 +222,7 @@ func convertFromGBE(gbe GameBoardExtended) VisualGameBoardExtended {
 // all options or find Food.
 // Remember to always discard already visited fields.
 var testCheckFoodData = []struct {
-	id				  string
+	id                string
 	extendedBoard     GameBoardExtended
 	head              Coord
 	expectedLength    int
@@ -239,6 +239,21 @@ var testCheckFoodData = []struct {
 		head:              Coord{X: 1, Y: 2},
 		expectedLength:    3,
 		expectedDirection: "down",
+	},
+	{
+		id: "Check for distant reachable food",
+		extendedBoard: convertToGBE(VisualGameBoardExtended{
+			{Tile{Body}, Tile{Body}, Tile{}, Tile{}},
+			{Tile{}, Tile{Head}, Tile{Body}, Tile{Food}},
+			{Tile{}, Tile{Body}, Tile{Body}, Tile{}},
+			{Tile{}, Tile{Body}, Tile{}, Tile{}},
+			{Tile{}, Tile{Body}, Tile{Body}, Tile{}},
+			{Tile{}, Tile{}, Tile{Body}, Tile{}},
+			{Tile{Food}, Tile{}, Tile{Head}, Tile{Food}},
+		}),
+		head:              Coord{X: 1, Y: 5},
+		expectedLength:    6,
+		expectedDirection: "left",
 	},
 	{
 		id: "Head is food",
@@ -259,8 +274,8 @@ func TestCheckFood(t *testing.T) {
 		t.Run(data.id, func(t *testing.T) {
 			is := is.NewRelaxed(t)
 			shortestLength, direction := checkFood(data.extendedBoard, data.head)
-			is.Equal(shortestLength, data.expectedLength)  // The shortest path has a different length
-			is.Equal(direction, data.expectedDirection)  // The direction for the shortest path is different
+			is.Equal(shortestLength, data.expectedLength) // The shortest path has a different length
+			is.Equal(direction, data.expectedDirection)   // The direction for the shortest path is different
 		})
 	}
 }

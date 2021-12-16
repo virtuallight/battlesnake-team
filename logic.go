@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -59,6 +60,85 @@ type ExtendedCoord struct {
 	length int
 }
 
+// isValidTile returns true if the Tile is good to go to
+func isValidTile(content ContentType) bool {
+	switch content {
+	case
+		Food,
+		Empty:
+		return true
+	}
+	return false
+}
+
+//getPossibleNeighbours returns an array of Coord with possible neighbours of a Coord
+// TODO: uniform with the logic in the move function
+func getPossibleNeighbours(gb GameBoardExtended, current Coord) []Coord {
+	result := []Coord{}
+	width := len(gb)
+	height := len(gb[0])
+
+	// check up if no wall up
+	if current.Y != height-1 {
+		upCoord := Coord{X: current.X, Y: current.Y + 1}
+		if isValidTile(gb[upCoord.X][upCoord.Y].content) {
+			result = append(result, upCoord)
+		}
+	}
+
+	// check down if no wall down
+	if current.Y != 0 {
+		downCoord := Coord{X: current.X, Y: current.Y - 1}
+		if isValidTile(gb[downCoord.X][downCoord.Y].content) {
+			result = append(result, downCoord)
+		}
+	}
+
+	// check left if no wall left
+	if current.X != 0 {
+		leftCoord := Coord{X: current.X - 1, Y: current.Y}
+		if isValidTile(gb[leftCoord.X][leftCoord.Y].content) {
+			result = append(result, leftCoord)
+		}
+	}
+
+	// check right if no wall right
+	if current.X != width-1 {
+		rightCoord := Coord{X: current.X + 1, Y: current.Y}
+		if isValidTile(gb[rightCoord.X][rightCoord.Y].content) {
+			result = append(result, rightCoord)
+		}
+	}
+
+	return result
+
+}
+
+// findInitialDirection returns the direction of the first move from
+// and ExtendedCoord
+func findInitialDirection(root ExtendedCoord, node ExtendedCoord) string {
+	direction := ""
+
+	// Find the first neighbour of root by following the parents of node
+	pathLength := node.length
+	for i := 0; i < pathLength-1; i++ {
+		node = *node.parent
+	}
+
+	fmt.Println("root: ", root, "node: ", node)
+	if root.coord.X > node.coord.X {
+		direction = "left"
+	} else if root.coord.X < node.coord.X {
+		direction = "right"
+	} else if root.coord.Y > node.coord.Y {
+		direction = "down"
+	} else if root.coord.Y < node.coord.Y {
+		direction = "up"
+	}
+
+	return direction
+}
+
 // checkFood returns the shortest path length and the next direction to move
 // towards the closest food or -1 and empty string if there are no reachable food.
 func checkFood(gb GameBoardExtended, current Coord) (int, string) {
@@ -68,39 +148,47 @@ func checkFood(gb GameBoardExtended, current Coord) (int, string) {
 	}
 
 	visitedNodes := map[Coord]bool{}
-	visitedNodes[root.coord] = true
-
+	
 	queue := []ExtendedCoord{}
 	queue = append(queue, root)
 
 	// Main loop for BFS
 	for len(queue) > 0 {
+		fmt.Println("queue: ", queue, "len: ", len(queue))
+
 		// Pop the first element from the queue
-		element := queue[0]
+		node := queue[0]
 		queue = queue[1:]
 
 		// Check if the element is food (stop condition)
-		if gb[element.coord.X][element.coord.Y].content == Food {
-			direction := ""
-			// Find the initial direction
-			node := element
-			for node.parent != &root && node.parent != nil {
-				node = *node.parent
-			}
-			if root.coord.X > node.coord.X {
-				direction = "left"
-			} else if root.coord.X < node.coord.X {
-				direction = "right"
-			} else if root.coord.Y > node.coord.Y {
-				direction = "down"
-			} else if root.coord.Y < node.coord.Y {
-				direction = "up"
-			}
+		if gb[node.coord.X][node.coord.Y].content == Food {
+			fmt.Println("we found food!", node)
+			direction := findInitialDirection(root, node)
 
-			return element.length, direction
+			return node.length, direction
 		}
-		// TODO: Put the neighbours in the queue
 
+		// Check if the element was already visited
+		if _, ok := visitedNodes[node.coord]; ok {
+			fmt.Println("Node was visited ", node)
+			continue
+		}
+
+		// Get possible neighbours
+		neighbours := getPossibleNeighbours(gb, node.coord)
+		fmt.Println("neighbours: ", neighbours)
+
+		// Put the neighbours in the queue
+		for i := 0; i < len(neighbours); i++ {
+			// Create the ExtendedCoord
+			extendedNeighbour := ExtendedCoord{coord: neighbours[i], length: node.length + 1, parent: &node}
+			// Append to the queue
+			queue = append(queue, extendedNeighbour)
+			fmt.Println("Appended neighbour to queue: ", neighbours[i])
+		}
+
+		// Mark the node as visited
+		visitedNodes[node.coord] = true
 	}
 
 	return -1, ""
