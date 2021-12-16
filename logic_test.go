@@ -212,15 +212,6 @@ func convertFromGBE(gbe GameBoardExtended) VisualGameBoardExtended {
 	return visual
 }
 
-// TODO: Test BFS to find food, write a test for checkFood function
-//
-// BFS will crawl the board looking for food.
-// We start on our Head and the next nodes will be
-// the neigbours that we can reach (no wall, no snakes).
-// We check if any of them are Food. If no,
-// then we continue recursively until we exhaust
-// all options or find Food.
-// Remember to always discard already visited fields.
 var testCheckFoodData = []struct {
 	id                string
 	extendedBoard     GameBoardExtended

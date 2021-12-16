@@ -2,9 +2,11 @@ package main
 
 type ContentType int
 
+const FOOD_BONUS = 10
+
 const (
 	Empty  ContentType = 0
-	Food   ContentType = 2  // TODO: figure out a better value for this in relation to health
+	Food   ContentType = 2 // TODO: figure out a better value for this in relation to health
 	Body   ContentType = -1
 	Head   ContentType = -2
 	Wall   ContentType = -3

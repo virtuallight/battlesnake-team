@@ -148,7 +148,7 @@ func checkFood(gb GameBoardExtended, current Coord) (int, string) {
 	}
 
 	visitedNodes := map[Coord]bool{}
-	
+
 	queue := []ExtendedCoord{}
 	queue = append(queue, root)
 
@@ -264,6 +264,8 @@ func move(state GameState) BattlesnakeMoveResponse {
 		}
 	}
 
+	_, foodDirection := checkFood(gameBoardEx, myHead)
+
 	var maxScore = -9000
 	var nextMove string = "down"
 
@@ -282,6 +284,11 @@ func move(state GameState) BattlesnakeMoveResponse {
 
 		nScore := getNeighbourScore(gameBoardEx, neighbour)
 		log.Printf("For possible move '%s' we've calculated score: %d", move, nScore)
+
+		if move == foodDirection {
+			nScore += FOOD_BONUS
+		}
+
 		if nScore > maxScore {
 			maxScore = nScore
 			nextMove = move
